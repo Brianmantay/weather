@@ -1,0 +1,41 @@
+body {
+    font-family: Roboto;
+    color: #fff;
+}
+
+.weather-list-item, .add-weather-list-item {
+    padding: 20px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    margin: 0px;
+}
+
+.add-weather-list-item {
+    text-align: center;
+}
+
+.add-weather-list-item .plus:hover {
+    color: #222;
+}
+
+.add-weather-list-item .plus {
+    color: #000;
+}
+
+.weather-list-item h1 {
+    display: inline;
+}
+
+.weather-list-item h4 {
+    display: inline;
+}
+
+@media (max-width: 767px) {
+    body {
+        padding-top: 50px;
+    }
+}
+
+.form-group {
+    margin-top: 20px;
+}
