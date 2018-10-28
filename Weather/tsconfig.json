@@ -13,7 +13,8 @@
       "webpack-env",
       "googlemaps",
       "markerclustererplus"
-    ]
+    ],
+    "experimentalDecorators": true
   },
   "exclude": [
     "bin",

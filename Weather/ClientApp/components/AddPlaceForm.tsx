@@ -5,47 +5,52 @@ import { PlaceMap } from './Map'
 import { WeatherApi, Place } from '../services/weather-api'
 import { LocalStorageApi } from '../services/local-storage-api'
 import { WeatherListItem } from './WeatherListItem'
+import { observable } from 'mobx'
+import { inject, observer } from 'mobx-react';
+import { PlacesStore } from "../stores/PlacesStore";
 
-interface AddPlaceFormState {
-    showModal: boolean,
-    place?: Place,
-    tagName: string
+type Props = AddPlaceFormProps & RouteComponentProps<{}>;
+
+interface AddPlaceFormProps {
+    placesStore?: PlacesStore
 }
 
-export class AddPlaceForm extends React.Component<RouteComponentProps<{}>, AddPlaceFormState> {
+@inject('placesStore')
+@observer
+export class AddPlaceForm extends React.Component<RouteComponentProps<{}>, {}> {
+    store?: PlacesStore;
 
     private readonly api: WeatherApi = new WeatherApi();
     private readonly storage: LocalStorageApi = new LocalStorageApi();
 
-    constructor() {
-        super();
+    @observable showModal: boolean = false;
+    @observable place?: Place;
+    @observable tagName: string = '';
 
+    constructor(props: Props) {
+        super(props);
         this.handleShow = this.handleShow.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleSave = this.handleSave.bind(this);
-
-        this.state = {
-            showModal: false,
-			tagName: ''
-        };
+        this.store = props.placesStore;
     }
 
 	render() {
         return <div>
             <PlaceMap handleSelection={this.onHandleMapSelection} />
 
-            <Modal show={this.state.showModal} onHide={this.handleClose}>
+            <Modal show={this.showModal} onHide={this.handleClose}>
                 <form onSubmit={this.handleSave}>
 					<Modal.Header closeButton>
 						<Modal.Title>Save this Place</Modal.Title>
 					</Modal.Header>
 					<Modal.Body>
-						{ this.state.place && <WeatherListItem place={this.state.place} /> }
+						{ this.place && <WeatherListItem place={this.place} /> }
 						<FormGroup>
 							<ControlLabel>Tag this place</ControlLabel>
 							<FormControl
 								type="text"
-                                value={this.state.tagName}
+                                value={this.tagName}
                                 placeholder="e.g. My place"
                                 onChange={this.handleChange}
 							/>
@@ -61,38 +66,33 @@ export class AddPlaceForm extends React.Component<RouteComponentProps<{}>, AddPl
     }
 
     handleClose = () => {
-        this.setState({ showModal: false, place: undefined });
+        this.place = undefined;
+        this.showModal = false;
     }
 
     handleShow = () => {
-        this.setState({ showModal: true });
+        this.showModal = true;
     }
 
     handleSave = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!this.state.place) return;
+        if (!this.place) return;
 
-		// Meh... Just using local storage instead of a db for now
-        let places = this.storage.get<Place[]>('places') || [];
-        places.push({
-            ...this.state.place,
-			tagName: this.state.tagName
-        });
-        this.storage.set('places', places);
+        this.place.tagName = this.tagName;
+        this.store!.addPlace(this.place);
 
-        this.setState({ showModal: false });
+        this.handleClose();
         this.props.history.push("/");
     }
 
 	// fml
     handleChange = (e: any) => {
-        const value = e.currentTarget.value;
-        this.setState({ tagName: value });
+        this.tagName = e.currentTarget.value;
     }
 
     onHandleMapSelection = async (lat: number, lng: number) => {
-        let place = await this.api.GetWeatherByCoords(lat, lng);
-        this.setState({ place });
+        this.place = await this.api.GetWeatherByCoords(lat, lng);
+        this.place.tagName = this.tagName;
         this.handleShow();
     }
 }

@@ -6,5 +6,5 @@ import { AddPlaceForm } from './components/AddPlaceForm'
 
 export const routes = <Layout>
     <Route exact path='/' component={Home} />
-    <Route exact path='/add' component={AddPlaceForm} />
+    <Route exact path='/add' component={AddPlaceForm as any} />
 </Layout>;

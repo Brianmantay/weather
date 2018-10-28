@@ -1,6 +1,5 @@
 body {
     font-family: Roboto;
-    color: #fff;
 }
 
 .weather-list-item, .add-weather-list-item {
@@ -20,6 +19,10 @@ body {
 
 .add-weather-list-item .plus {
     color: #000;
+}
+
+.weather-list-item {
+    color: #fff;
 }
 
 .weather-list-item h1 {
